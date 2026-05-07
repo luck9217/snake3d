@@ -45,47 +45,127 @@
         z-index: 10;
       }
 
-      #p2hint {
-        position: fixed;
-        top: 78px;
-        left: 15px;
-        font-size: 14px;
-        letter-spacing: 1px;
-        color: var(--hud-red);
-        text-shadow: 0 0 7px var(--hud-red-strong);
-        z-index: 10;
-      }
-
       #instructions {
         position: fixed;
-        top: 108px;
+        top: 92px;
         left: 15px;
-        width: min(315px, calc(100vw - 30px));
-        padding: 10px 12px;
+        width: min(290px, calc(100vw - 30px));
+        padding: 10px;
         border: 1px solid var(--hud-red);
-        border-radius: 8px;
-        background: rgba(45, 0, 0, 0.24);
+        border-radius: 10px;
+        background: rgba(20, 0, 0, 0.42);
+        box-shadow: 0 0 18px rgba(255, 40, 40, 0.22);
         color: var(--hud-red);
         text-shadow: 0 0 7px var(--hud-red-strong);
-        line-height: 1.35;
-        font-size: 13px;
+        line-height: 1.3;
+        font-size: 12px;
         z-index: 10;
+        pointer-events: none;
+        opacity: 0.95;
       }
 
       #instructions .title {
-        font-size: 14px;
+        text-align: center;
+        font-size: 18px;
         font-weight: 700;
         letter-spacing: 1px;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid rgba(255, 87, 87, 0.6);
+      }
+
+      #instructions .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
         margin-bottom: 6px;
+      }
+
+      #instructions .card {
+        border: 1px solid rgba(255, 87, 87, 0.45);
+        border-radius: 7px;
+        padding: 6px;
+        background: rgba(38, 0, 0, 0.28);
+      }
+
+      #instructions .section {
+        color: #ff9a9a;
+        font-size: 11px;
+        letter-spacing: 0.8px;
+        font-weight: 700;
+        margin-bottom: 4px;
       }
 
       #instructions .line {
         margin: 2px 0;
       }
 
-      #instructions .line.p1-cyan {
+      #instructions .controls-visual {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        column-gap: 8px;
+        row-gap: 8px;
+        align-items: center;
+      }
+
+      #instructions .key-grid-arrows {
+        display: grid;
+        grid-template-columns: repeat(3, 22px);
+        grid-template-rows: repeat(2, 22px);
+        gap: 3px;
+        justify-content: center;
+      }
+
+      #instructions .key-grid-wasd {
+        display: grid;
+        grid-template-columns: repeat(3, 22px);
+        grid-template-rows: repeat(2, 22px);
+        gap: 3px;
+        justify-content: center;
+      }
+
+      #instructions .blank {
+        visibility: hidden;
+      }
+
+      #instructions .key {
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      #instructions .key-cyan {
+        border: 1px solid #20e8ff;
+        color: #8ef8ff;
+        text-shadow: 0 0 6px #00dbff;
+        box-shadow: 0 0 7px rgba(0, 224, 255, 0.35);
+      }
+
+      #instructions .key-red {
+        border: 1px solid #ff5c5c;
+        color: #ffaaaa;
+        text-shadow: 0 0 6px #ff3939;
+        box-shadow: 0 0 7px rgba(255, 64, 64, 0.35);
+      }
+
+      #instructions .control-text {
+        font-size: 11px;
+      }
+
+      #instructions .line.p1-cyan,
+      #instructions .mini-cyan {
         color: #64f8ff;
         text-shadow: 0 0 7px #0fe6ff;
+      }
+
+      #instructions .mini {
+        font-size: 11px;
+        color: #ffc2c2;
       }
 
       #timer {
@@ -119,15 +199,6 @@
         z-index: 10;
       }
 
-      .controls {
-        position: fixed;
-        bottom: 25px;
-        width: 100%;
-        text-align: center;
-        z-index: 10;
-        opacity: 0.88;
-      }
-
       button {
         width: 65px;
         height: 50px;
@@ -145,26 +216,52 @@
   <body>
     <div id="score">Score: 0</div>
     <div id="danger">Dragon steps: 0</div>
-    <div id="p2hint">P2: W A S D (red)</div>
     <div id="instructions">
-      <div class="title">SURVIVOR MULTIPLAYER</div>
-      <div class="line p1-cyan">P1 (cyan): Arrow keys</div>
-      <div class="line">P2 (red): W A S D</div>
-      <div class="line">Objective: survive together and score points.</div>
-      <div class="line">Space or Reset: restart.</div>
-      <div class="line">Timer is active at the bottom-right.</div>
+      <div class="title">HOW TO PLAY</div>
+      <div class="grid">
+        <div class="card">
+          <div class="section">CONTROLS</div>
+          <div class="controls-visual">
+            <div class="key-grid-arrows">
+              <div class="key blank"></div>
+              <div class="key key-cyan">↑</div>
+              <div class="key blank"></div>
+              <div class="key key-cyan">←</div>
+              <div class="key key-cyan">↓</div>
+              <div class="key key-cyan">→</div>
+            </div>
+            <div class="control-text p1-cyan">P1 Arrows<br />Move</div>
+
+            <div class="key-grid-wasd">
+              <div class="key blank"></div>
+              <div class="key key-red">W</div>
+              <div class="key blank"></div>
+              <div class="key key-red">A</div>
+              <div class="key key-red">S</div>
+              <div class="key key-red">D</div>
+            </div>
+            <div class="control-text">P2 W A S D<br />Move</div>
+          </div>
+          <div class="line">Reset: Space</div>
+        </div>
+        <div class="card">
+          <div class="section">OBJECTIVE</div>
+          <div class="line">Eat apples for score.</div>
+          <div class="line">Avoid walls and hits.</div>
+          <div class="line">Avoid the dragon.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section">RULES</div>
+        <div class="line">1. Any crash ends the game.</div>
+        <div class="line">2. Team score grows together.</div>
+        <div class="line">3. Speed rises per apple.</div>
+      </div>
+      <div class="mini mini-cyan">P1 color: cyan</div>
+      <div class="mini">P2 color: red</div>
     </div>
     <div id="timer">00:00</div>
     <button id="resetBtn" onclick="resetGame()">Reset</button>
-
-    <div class="controls">
-      <div><button onclick="setDir('up')">↑</button></div>
-      <div>
-        <button onclick="setDir('left')">←</button>
-        <button onclick="setDir('down')">↓</button>
-        <button onclick="setDir('right')">→</button>
-      </div>
-    </div>
 
     <script type="module">
       import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js";
