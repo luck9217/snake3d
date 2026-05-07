@@ -223,10 +223,10 @@
       // Sin columnas decorativas para mantener el mapa limpio.
 
       // Datos del juego
-      let snake = [{ x: -2, z: 0 }];
+      let snake = [{ x: -6, z: 0 }];
       let direction = "right";
       let nextDirection = "right";
-      let snake2 = [{ x: 2, z: 0 }];
+      let snake2 = [{ x: 6, z: 0 }];
       let direction2 = "left";
       let nextDirection2 = "left";
       let score = 0;
@@ -289,10 +289,21 @@
       });
 
       const foodMaterial = new THREE.MeshStandardMaterial({
-        color: 0x95ffff,
-        emissive: 0x00f7ff,
-        emissiveIntensity: 1.2,
-        roughness: 0.15,
+        color: 0xff3a3a,
+        emissive: 0xff2600,
+        emissiveIntensity: 1.1,
+        roughness: 0.28,
+      });
+      const foodStemMaterial = new THREE.MeshStandardMaterial({
+        color: 0x7b4b2a,
+        roughness: 0.9,
+        metalness: 0,
+      });
+      const foodLeafMaterial = new THREE.MeshStandardMaterial({
+        color: 0x4ebd52,
+        emissive: 0x123d13,
+        emissiveIntensity: 0.25,
+        roughness: 0.7,
       });
       const dragonMaterial = new THREE.MeshStandardMaterial({
         color: 0x556b34,
@@ -576,6 +587,41 @@
         return cube;
       }
 
+      function createFoodApple(x, z) {
+        const apple = new THREE.Group();
+
+        const body = new THREE.Mesh(
+          new THREE.SphereGeometry(0.38, 16, 16),
+          foodMaterial,
+        );
+        body.position.y = 0.4;
+        apple.add(body);
+
+        const stem = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.03, 0.03, 0.12, 8),
+          foodStemMaterial,
+        );
+        stem.position.set(0, 0.58, 0);
+        apple.add(stem);
+
+        const leaf = new THREE.Mesh(
+          new THREE.SphereGeometry(0.07, 8, 8),
+          foodLeafMaterial,
+        );
+        leaf.scale.set(1.45, 0.5, 0.82);
+        leaf.position.set(0.1, 0.57, 0.04);
+        leaf.rotation.z = 0.5;
+        apple.add(leaf);
+
+        const glow = new THREE.PointLight(0xff4a2b, 1.4, 3.2, 2);
+        glow.position.set(0, 0.4, 0);
+        apple.add(glow);
+
+        apple.position.set(x, 0, z);
+        scene.add(apple);
+        return apple;
+      }
+
       function updateTimer() {
         if (gameOver) return;
         elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
@@ -628,7 +674,7 @@
 
       function drawFood() {
         if (foodMesh) scene.remove(foodMesh);
-        foodMesh = createCube(food.x, food.z, foodMaterial);
+        foodMesh = createFoodApple(food.x, food.z);
       }
 
       function drawSnakes() {
@@ -799,10 +845,10 @@
       }
 
       function resetGame() {
-        snake = [{ x: -2, z: 0 }];
+        snake = [{ x: -6, z: 0 }];
         direction = "right";
         nextDirection = "right";
-        snake2 = [{ x: 2, z: 0 }];
+        snake2 = [{ x: 6, z: 0 }];
         direction2 = "left";
         nextDirection2 = "left";
         score = 0;
