@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Viborita 3D</title>
     <style>
+      :root {
+        --hud-red: #ff5757;
+        --hud-red-strong: #ff2c2c;
+      }
+
       body {
         margin: 0;
         overflow: hidden;
@@ -15,7 +20,7 @@
           #010304 100%
         );
         font-family: "Consolas", "Courier New", monospace;
-        color: #e8ffff;
+        color: var(--hud-red);
       }
 
       #score {
@@ -24,8 +29,8 @@
         left: 15px;
         font-size: 21px;
         letter-spacing: 1px;
-        color: #8ffcff;
-        text-shadow: 0 0 8px #00eeff;
+        color: var(--hud-red);
+        text-shadow: 0 0 8px var(--hud-red-strong);
         z-index: 10;
       }
 
@@ -35,19 +40,64 @@
         left: 15px;
         font-size: 17px;
         letter-spacing: 1px;
-        color: #ff925a;
-        text-shadow: 0 0 8px #ff6a00;
+        color: var(--hud-red);
+        text-shadow: 0 0 8px var(--hud-red-strong);
         z-index: 10;
+      }
+
+      #p2hint {
+        position: fixed;
+        top: 78px;
+        left: 15px;
+        font-size: 14px;
+        letter-spacing: 1px;
+        color: var(--hud-red);
+        text-shadow: 0 0 7px var(--hud-red-strong);
+        z-index: 10;
+      }
+
+      #instructions {
+        position: fixed;
+        top: 108px;
+        left: 15px;
+        width: min(315px, calc(100vw - 30px));
+        padding: 10px 12px;
+        border: 1px solid var(--hud-red);
+        border-radius: 8px;
+        background: rgba(45, 0, 0, 0.24);
+        color: var(--hud-red);
+        text-shadow: 0 0 7px var(--hud-red-strong);
+        line-height: 1.35;
+        font-size: 13px;
+        z-index: 10;
+      }
+
+      #instructions .title {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+      }
+
+      #instructions .line {
+        margin: 2px 0;
+      }
+
+      #instructions .line.p1-cyan {
+        color: #64f8ff;
+        text-shadow: 0 0 7px #0fe6ff;
       }
 
       #timer {
         position: fixed;
         right: 18px;
-        bottom: 15px;
-        font-size: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 36px;
+        font-weight: 700;
         letter-spacing: 1px;
-        color: #b2fdff;
-        text-shadow: 0 0 8px #00f5ff;
+        color: var(--hud-red);
+        text-shadow: 0 0 8px var(--hud-red-strong);
         z-index: 10;
       }
 
@@ -61,10 +111,10 @@
         font-size: 14px;
         letter-spacing: 1px;
         border-radius: 8px;
-        color: #d6feff;
-        background: rgba(0, 222, 255, 0.12);
-        border: 1px solid #12d8ef;
-        box-shadow: 0 0 12px rgba(0, 225, 255, 0.35);
+        color: var(--hud-red);
+        background: rgba(95, 0, 0, 0.22);
+        border: 1px solid var(--hud-red);
+        box-shadow: 0 0 12px rgba(255, 60, 60, 0.38);
         cursor: pointer;
         z-index: 10;
       }
@@ -83,18 +133,27 @@
         height: 50px;
         margin: 4px;
         font-size: 24px;
-        border: 1px solid #00dfef;
+        border: 1px solid var(--hud-red);
         border-radius: 10px;
-        background: rgba(0, 180, 220, 0.08);
-        color: #aafaff;
-        text-shadow: 0 0 8px #00eaff;
-        box-shadow: 0 0 8px rgba(0, 225, 255, 0.22);
+        background: rgba(85, 0, 0, 0.18);
+        color: var(--hud-red);
+        text-shadow: 0 0 8px var(--hud-red-strong);
+        box-shadow: 0 0 8px rgba(255, 60, 60, 0.28);
       }
     </style>
   </head>
   <body>
-    <div id="score">Puntos: 0</div>
-    <div id="danger">Dragon pasos: 0</div>
+    <div id="score">Score: 0</div>
+    <div id="danger">Dragon steps: 0</div>
+    <div id="p2hint">P2: W A S D (red)</div>
+    <div id="instructions">
+      <div class="title">SURVIVOR MULTIPLAYER</div>
+      <div class="line p1-cyan">P1 (cyan): Arrow keys</div>
+      <div class="line">P2 (red): W A S D</div>
+      <div class="line">Objective: survive together and score points.</div>
+      <div class="line">Space or Reset: restart.</div>
+      <div class="line">Timer is active at the bottom-right.</div>
+    </div>
     <div id="timer">00:00</div>
     <button id="resetBtn" onclick="resetGame()">Reset</button>
 
@@ -164,20 +223,24 @@
       // Sin columnas decorativas para mantener el mapa limpio.
 
       // Datos del juego
-      let snake = [{ x: 0, z: 0 }];
+      let snake = [{ x: -2, z: 0 }];
       let direction = "right";
       let nextDirection = "right";
+      let snake2 = [{ x: 2, z: 0 }];
+      let direction2 = "left";
+      let nextDirection2 = "left";
       let score = 0;
       let gameOver = false;
       let dangerCounter = 0;
       let elapsedSeconds = 0;
       let startTime = Date.now();
 
-      let food = randomFood();
       let dragonCell = { x: 0, z: 0 };
       let lastDragonCell = { x: 999, z: 999 };
+      let food = randomFood();
 
       const snakeMeshes = [];
+      const snake2Meshes = [];
       let foodMesh;
       let dragon;
       let dragonHead;
@@ -211,6 +274,18 @@
         emissive: 0x6af8ff,
         emissiveIntensity: 0.95,
         roughness: 0.22,
+      });
+      const snake2Material = new THREE.MeshStandardMaterial({
+        color: 0xff4949,
+        emissive: 0xff1414,
+        emissiveIntensity: 0.8,
+        roughness: 0.3,
+      });
+      const head2Material = new THREE.MeshStandardMaterial({
+        color: 0xffb3b3,
+        emissive: 0xff4444,
+        emissiveIntensity: 0.95,
+        roughness: 0.24,
       });
 
       const foodMaterial = new THREE.MeshStandardMaterial({
@@ -488,7 +563,7 @@
         ) {
           dangerCounter++;
           document.getElementById("danger").textContent =
-            "Dragon pasos: " + dangerCounter;
+            "Dragon steps: " + dangerCounter;
           lastDragonCell = { ...dragonCell };
         }
       }
@@ -510,10 +585,45 @@
       }
 
       function randomFood() {
-        return {
-          x: Math.floor(Math.random() * gridSize) - gridSize / 2,
-          z: Math.floor(Math.random() * gridSize) - gridSize / 2,
-        };
+        const limit = gridSize / 2;
+
+        for (let i = 0; i < 80; i++) {
+          const candidate = {
+            x: Math.floor(Math.random() * gridSize) - gridSize / 2,
+            z: Math.floor(Math.random() * gridSize) - gridSize / 2,
+          };
+
+          if (
+            snake.some(
+              (part) => part.x === candidate.x && part.z === candidate.z,
+            )
+          ) {
+            continue;
+          }
+
+          if (
+            snake2.some(
+              (part) => part.x === candidate.x && part.z === candidate.z,
+            )
+          ) {
+            continue;
+          }
+
+          if (candidate.x === dragonCell.x && candidate.z === dragonCell.z) {
+            continue;
+          }
+
+          if (
+            candidate.x >= -limit &&
+            candidate.x < limit &&
+            candidate.z >= -limit &&
+            candidate.z < limit
+          ) {
+            return candidate;
+          }
+        }
+
+        return { x: 0, z: 0 };
       }
 
       function drawFood() {
@@ -521,17 +631,28 @@
         foodMesh = createCube(food.x, food.z, foodMaterial);
       }
 
-      function drawSnake() {
+      function drawSnakes() {
         for (const mesh of snakeMeshes) {
           scene.remove(mesh);
         }
 
+        for (const mesh of snake2Meshes) {
+          scene.remove(mesh);
+        }
+
         snakeMeshes.length = 0;
+        snake2Meshes.length = 0;
 
         snake.forEach((part, index) => {
           const material = index === 0 ? headMaterial : snakeMaterial;
           const cube = createCube(part.x, part.z, material);
           snakeMeshes.push(cube);
+        });
+
+        snake2.forEach((part, index) => {
+          const material = index === 0 ? head2Material : snake2Material;
+          const cube = createCube(part.x, part.z, material);
+          snake2Meshes.push(cube);
         });
       }
 
@@ -539,13 +660,20 @@
         if (gameOver) return;
 
         direction = nextDirection;
+        direction2 = nextDirection2;
 
         const head = { ...snake[0] };
+        const head2 = { ...snake2[0] };
 
         if (direction === "up") head.z -= 1;
         if (direction === "down") head.z += 1;
         if (direction === "left") head.x -= 1;
         if (direction === "right") head.x += 1;
+
+        if (direction2 === "up") head2.z -= 1;
+        if (direction2 === "down") head2.z += 1;
+        if (direction2 === "left") head2.x -= 1;
+        if (direction2 === "right") head2.x += 1;
 
         const limit = gridSize / 2;
 
@@ -553,37 +681,80 @@
           head.x < -limit ||
           head.x >= limit ||
           head.z < -limit ||
-          head.z >= limit
+          head.z >= limit ||
+          head2.x < -limit ||
+          head2.x >= limit ||
+          head2.z < -limit ||
+          head2.z >= limit
         ) {
-          endGame();
+          endGame("A snake left the map");
           return;
         }
 
-        if (head.x === dragonCell.x && head.z === dragonCell.z) {
-          endGame("Te comio el dragon");
+        if (
+          (head.x === dragonCell.x && head.z === dragonCell.z) ||
+          (head2.x === dragonCell.x && head2.z === dragonCell.z)
+        ) {
+          endGame("The dragon got you");
           return;
         }
 
         for (const part of snake) {
           if (head.x === part.x && head.z === part.z) {
-            endGame();
+            endGame("P1 hit its own body");
             return;
           }
         }
 
-        snake.unshift(head);
+        for (const part of snake2) {
+          if (head2.x === part.x && head2.z === part.z) {
+            endGame("P2 hit its own body");
+            return;
+          }
+        }
 
-        if (head.x === food.x && head.z === food.z) {
-          score++;
-          document.getElementById("score").textContent = "Puntos: " + score;
+        for (const part of snake2) {
+          if (head.x === part.x && head.z === part.z) {
+            endGame("P1 crashed into P2");
+            return;
+          }
+        }
+
+        for (const part of snake) {
+          if (head2.x === part.x && head2.z === part.z) {
+            endGame("P2 crashed into P1");
+            return;
+          }
+        }
+
+        if (head.x === head2.x && head.z === head2.z) {
+          endGame("Head-on collision");
+          return;
+        }
+
+        snake.unshift(head);
+        snake2.unshift(head2);
+
+        const ate1 = head.x === food.x && head.z === food.z;
+        const ate2 = head2.x === food.x && head2.z === food.z;
+
+        if (ate1 || ate2) {
+          score += (ate1 ? 1 : 0) + (ate2 ? 1 : 0);
+          document.getElementById("score").textContent = "Score: " + score;
           gameTickMs = Math.max(minGameTickMs, gameTickMs - speedStepMs);
           food = randomFood();
           drawFood();
-        } else {
+        }
+
+        if (!ate1) {
           snake.pop();
         }
 
-        drawSnake();
+        if (!ate2) {
+          snake2.pop();
+        }
+
+        drawSnakes();
       }
 
       function setDir(dir) {
@@ -591,6 +762,13 @@
         if (dir === "down" && direction !== "up") nextDirection = "down";
         if (dir === "left" && direction !== "right") nextDirection = "left";
         if (dir === "right" && direction !== "left") nextDirection = "right";
+      }
+
+      function setDir2(dir) {
+        if (dir === "up" && direction2 !== "down") nextDirection2 = "up";
+        if (dir === "down" && direction2 !== "up") nextDirection2 = "down";
+        if (dir === "left" && direction2 !== "right") nextDirection2 = "left";
+        if (dir === "right" && direction2 !== "left") nextDirection2 = "right";
       }
 
       window.setDir = setDir;
@@ -606,19 +784,27 @@
         if (e.key === "ArrowDown") setDir("down");
         if (e.key === "ArrowLeft") setDir("left");
         if (e.key === "ArrowRight") setDir("right");
+
+        if (e.key === "w" || e.key === "W") setDir2("up");
+        if (e.key === "s" || e.key === "S") setDir2("down");
+        if (e.key === "a" || e.key === "A") setDir2("left");
+        if (e.key === "d" || e.key === "D") setDir2("right");
       });
 
       function endGame(reason) {
         gameOver = true;
         const cause = reason ? " | " + reason : "";
         document.getElementById("score").textContent =
-          "Game Over - Puntos: " + score + cause + " | Usa Reset";
+          "Game Over - Score: " + score + cause + " | Use Reset";
       }
 
       function resetGame() {
-        snake = [{ x: 0, z: 0 }];
+        snake = [{ x: -2, z: 0 }];
         direction = "right";
         nextDirection = "right";
+        snake2 = [{ x: 2, z: 0 }];
+        direction2 = "left";
+        nextDirection2 = "left";
         score = 0;
         gameOver = false;
         dangerCounter = 0;
@@ -626,8 +812,8 @@
         startTime = Date.now();
         gameTickMs = 250;
 
-        document.getElementById("score").textContent = "Puntos: 0";
-        document.getElementById("danger").textContent = "Dragon pasos: 0";
+        document.getElementById("score").textContent = "Score: 0";
+        document.getElementById("danger").textContent = "Dragon steps: 0";
         document.getElementById("timer").textContent = "00:00";
 
         food = randomFood();
@@ -644,7 +830,7 @@
         }
 
         drawFood();
-        drawSnake();
+        drawSnakes();
       }
 
       window.resetGame = resetGame;
@@ -661,7 +847,12 @@
         updateTimer();
 
         // Movimiento suave tipo chase-cam neon
-        const target = snake[0] || { x: 0, z: 0 };
+        const p1 = snake[0] || { x: 0, z: 0 };
+        const p2 = snake2[0] || { x: 0, z: 0 };
+        const target = {
+          x: (p1.x + p2.x) / 2,
+          z: (p1.z + p2.z) / 2,
+        };
         camera.position.x +=
           (target.x * 0.15 +
             Math.sin(Date.now() * 0.0007) * 0.8 -
@@ -674,7 +865,7 @@
       }
 
       drawFood();
-      drawSnake();
+      drawSnakes();
       dragon = createDragon();
       dragon.position.set(dragonRadius, 0.08, 0);
       dragonPrevPos = { x: dragonRadius, z: 0 };
